@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CampusPass | College Event Registration</title>
+  <meta name="description" content="Browse college events and reserve your seat in under a minute." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Hanken+Grotesk:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232F4BFF'/%3E%3Cpath d='M7 12h18v3a2 2 0 0 0 0 4v3H7v-3a2 2 0 0 0 0-4z' fill='%23FFB400'/%3E%3C/svg%3E" />
+</head>
+<body>
+  <!-- Icon sprite (used with <use href="#i-name">) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></symbol>
+  </svg>
+
+  <header class="navbar">
+    <div class="container nav-inner">
+      <a class="brand" href="#top">CampusPass</a>
+      <button class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navLinks" aria-label="Open menu">Menu</button>
+      <nav class="nav-links" id="navLinks">
+        <a href="#events">Events</a>
+        <a href="#my-registrations">My registrations</a>
+        <a href="#admin">Admin</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-text">
+          <h1>Find an event.<br />Grab your seat.</h1>
+          <p>Workshops, hackathons, matches and cultural nights from every department. Register once and your seat is held.</p>
+          <div class="hero-actions">
+            <a class="btn btn-signal" href="#events">Browse events</a>
+            <a class="btn btn-outline" href="#my-registrations">Check my seats</a>
+          </div>
+        </div>
+
+        <div class="ticket" id="heroTicket" aria-live="polite">
+          <p class="ticket-empty">Loading the next event...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- EVENTS -->
+    <section class="section" id="events">
+      <div class="container">
+        <div class="section-head">
+          <h2>Events</h2>
+          <p>Search by name or venue, then narrow by category.</p>
+        </div>
+
+        <div class="filters">
+          <label class="search-box">
+            <svg class="ic"><use href="#i-search"/></svg>
+            <span class="sr-only">Search events</span>
+            <input type="search" id="searchInput" placeholder="Search events or venues" maxlength="60" />
+          </label>
+          <label>
+            <span class="sr-only">Category</span>
+            <select id="categoryFilter">
+              <option value="all">All categories</option>
+              <option>Technical</option><option>Cultural</option><option>Sports</option>
+              <option>Workshop</option><option>Seminar</option><option>Other</option>
+            </select>
+          </label>
+          <label>
+            <span class="sr-only">When</span>
+            <select id="whenFilter">
+              <option value="upcoming">Upcoming</option>
+              <option value="past">Past</option>
+              <option value="all">All dates</option>
+            </select>
+          </label>
+          <button class="btn btn-ghost" id="clearFilters" type="button">Clear filters</button>
+        </div>
+
+        <div id="eventsState" class="state" hidden></div>
+        <div id="eventsGrid" class="grid"></div>
+      </div>
+    </section>
+
+    <!-- MY REGISTRATIONS -->
+    <section class="section section-alt" id="my-registrations">
+      <div class="container narrow">
+        <div class="section-head">
+          <h2>My registrations</h2>
+          <p>Enter the email you registered with to see or cancel your seats.</p>
+        </div>
+        <form id="lookupForm" class="inline-form" novalidate>
+          <div class="field">
+            <label for="lookupEmail">Email</label>
+            <input id="lookupEmail" name="email" type="email" placeholder="you@college.edu" required autocomplete="email" />
+            <small class="field-error" data-error-for="email"></small>
+          </div>
+          <button class="btn btn-primary" type="submit" id="lookupBtn">Find my seats</button>
+        </form>
+        <div id="myRegState" class="state" hidden></div>
+        <div id="myRegList" class="reg-list"></div>
+      </div>
+    </section>
+
+    <!-- ADMIN -->
+    <section class="section" id="admin">
+      <div class="container">
+        <div class="section-head">
+          <h2>Organizer area</h2>
+          <p>Create and manage events. Requires the admin password.</p>
+        </div>
+
+        <form id="adminLoginForm" class="inline-form narrow" novalidate>
+          <div class="field">
+            <label for="adminPassword">Admin password</label>
+            <input id="adminPassword" name="password" type="password" required autocomplete="current-password" />
+            <small class="field-error" data-error-for="password"></small>
+          </div>
+          <button class="btn btn-primary" type="submit" id="adminLoginBtn">Unlock</button>
+        </form>
+
+        <div id="adminPanel" hidden>
+          <div class="admin-bar">
+            <button class="btn btn-primary" id="newEventBtn" type="button">Add event</button>
+            <button class="btn btn-ghost" id="logoutBtn" type="button">Lock organizer area</button>
+          </div>
+          <div id="adminState" class="state" hidden></div>
+          <div class="table-wrap">
+            <table class="table" id="adminTable">
+              <thead><tr><th>Event</th><th>Date</th><th>Seats</th><th>Actions</th></tr></thead>
+              <tbody id="adminEventsBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <span>CampusPass. A college mini project.</span>
+      <span class="live"><span class="dot" id="liveDot"></span><span id="liveText">Connecting...</span></span>
+    </div>
+  </footer>
+
+  <!-- REGISTER MODAL -->
+  <dialog id="registerModal" aria-labelledby="registerTitle">
+    <form id="registerForm" novalidate>
+      <div class="modal-head">
+        <h3 id="registerTitle">Register</h3>
+        <button type="button" class="icon-btn" data-close aria-label="Close">Close</button>
+      </div>
+      <p class="modal-sub" id="registerSub"></p>
+      <div class="field">
+        <label for="regName">Full name</label>
+        <input id="regName" name="student_name" required minlength="2" maxlength="80" autocomplete="name" />
+        <small class="field-error" data-error-for="student_name"></small>
+      </div>
+      <div class="field">
+        <label for="regEmail">College email</label>
+        <input id="regEmail" name="email" type="email" required autocomplete="email" />
+        <small class="field-error" data-error-for="email"></small>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="regRoll">Roll number</label>
+          <input id="regRoll" name="roll_number" required minlength="3" maxlength="30" />
+          <small class="field-error" data-error-for="roll_number"></small>
+        </div>
+        <div class="field">
+          <label for="regYear">Year</label>
+          <select id="regYear" name="year" required>
+            <option value="">Select</option>
+            <option value="1">1st year</option><option value="2">2nd year</option>
+            <option value="3">3rd year</option><option value="4">4th year</option>
+          </select>
+          <small class="field-error" data-error-for="year"></small>
+        </div>
+      </div>
+      <div class="field">
+        <label for="regDept">Department</label>
+        <input id="regDept" name="department" required minlength="2" maxlength="60" placeholder="e.g. Computer Science" />
+        <small class="field-error" data-error-for="department"></small>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-close>Cancel</button>
+        <button type="submit" class="btn btn-primary" id="registerSubmit">Confirm registration</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- EVENT (ADD / EDIT) MODAL -->
+  <dialog id="eventModal" aria-labelledby="eventModalTitle">
+    <form id="eventForm" novalidate>
+      <div class="modal-head">
+        <h3 id="eventModalTitle">Add event</h3>
+        <button type="button" class="icon-btn" data-close aria-label="Close">Close</button>
+      </div>
+      <input type="hidden" id="evId" />
+      <div class="field">
+        <label for="evTitle">Title</label>
+        <input id="evTitle" name="title" required minlength="3" maxlength="120" />
+        <small class="field-error" data-error-for="title"></small>
+      </div>
+      <div class="field">
+        <label for="evDescription">Description</label>
+        <textarea id="evDescription" name="description" rows="3" maxlength="1000"></textarea>
+        <small class="field-error" data-error-for="description"></small>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="evVenue">Venue</label>
+          <input id="evVenue" name="venue" required minlength="2" maxlength="120" />
+          <small class="field-error" data-error-for="venue"></small>
+        </div>
+        <div class="field">
+          <label for="evCategory">Category</label>
+          <select id="evCategory" name="category" required>
+            <option>Technical</option><option>Cultural</option><option>Sports</option>
+            <option>Workshop</option><option>Seminar</option><option>Other</option>
+          </select>
+          <small class="field-error" data-error-for="category"></small>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="evDate">Date and time</label>
+          <input id="evDate" name="event_date" type="datetime-local" required />
+          <small class="field-error" data-error-for="event_date"></small>
+        </div>
+        <div class="field">
+          <label for="evCapacity">Capacity (seats)</label>
+          <input id="evCapacity" name="capacity" type="number" min="1" max="10000" step="1" required />
+          <small class="field-error" data-error-for="capacity"></small>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" data-close>Cancel</button>
+        <button type="submit" class="btn btn-primary" id="eventSubmit">Save event</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- ATTENDEES MODAL -->
+  <dialog id="attendeesModal" class="wide" aria-labelledby="attendeesTitle">
+    <div class="modal-head">
+      <h3 id="attendeesTitle">Attendees</h3>
+      <button type="button" class="icon-btn" data-close aria-label="Close">Close</button>
+    </div>
+    <div id="attendeesState" class="state" hidden></div>
+    <div class="table-wrap">
+      <table class="table" id="attendeesTable" hidden>
+        <thead><tr><th>Name</th><th>Email</th><th>Roll no.</th><th>Dept.</th><th>Year</th><th></th></tr></thead>
+        <tbody id="attendeesBody"></tbody>
+      </table>
+    </div>
+  </dialog>
+
+  <div class="toasts" id="toasts" role="status" aria-live="polite"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
